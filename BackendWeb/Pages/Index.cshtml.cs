@@ -12,6 +12,11 @@ namespace aspnetcoreapp.Pages
 {
     public class IndexModel : PageModel
     {
+
+        public string TaskId { get; set; }
+
+        public bool ShowTaskId => !string.IsNullOrEmpty(TaskId);
+
         private readonly ILogger<IndexModel> _logger;
 
         public IndexModel(ILogger<IndexModel> logger)
@@ -19,21 +24,20 @@ namespace aspnetcoreapp.Pages
             _logger = logger;
         }
 
-        public void OnGet()
+        public IActionResult OnGet()
         {
-
+            return Page();
         }
 
-        public async void OnPost()
-        {
+        public async Task<IActionResult> OnPostAsync(string description)
+        {   
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             using var channel = GrpcChannel.ForAddress("http://localhost:5005");
             var client = new Job.JobClient(channel);
             var reply = await client.RegisterAsync(
-                              new RegisterRequest { Description = "This is job" });
-            Console.WriteLine("Job Id: " + reply.Id);
-            Console.WriteLine("Press any key to exit...");
-            Console.ReadKey();
+                              new RegisterRequest { Description = description });
+            TaskId =  reply.Id;
+            return Page();
         }
     }
 }
