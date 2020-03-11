@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,6 +21,11 @@ namespace aspnetcoreapp
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    var config = new ConfigurationBuilder()  
+                        .SetBasePath(new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.FullName + "/config")  
+                        .AddJsonFile("config.json", optional: false)  
+                        .Build(); 
+                    webBuilder.UseUrls($"http://*:{config.GetValue<int>("BackendWeb:port")}");
                     webBuilder.UseStartup<Startup>();
                 });
     }

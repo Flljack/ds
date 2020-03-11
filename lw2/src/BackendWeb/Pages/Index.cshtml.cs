@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 using BackendApi;
 using Grpc.Net.Client;
 
@@ -32,7 +34,11 @@ namespace aspnetcoreapp.Pages
         public async Task<IActionResult> OnPostAsync(string description)
         {   
             AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
-            using var channel = GrpcChannel.ForAddress("http://localhost:5005");
+            var config = new ConfigurationBuilder()  
+                        .SetBasePath(new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.FullName + "/config")  
+                        .AddJsonFile("config.json", optional: false)  
+                        .Build(); 
+            using var channel = GrpcChannel.ForAddress($"http://localhost:{config.GetValue<int>("BackendAPI:port")}");
             var client = new Job.JobClient(channel);
             var reply = await client.RegisterAsync(
                               new RegisterRequest { Description = description });
