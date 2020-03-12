@@ -1,0 +1,15 @@
+{
+    "BackendAPI": {
+      "port": 5005
+    },
+    "BackendWeb": {
+      "port": 5001
+    },
+    "Redis": {
+      "port": 6379
+    },
+    "NATS": {
+      "eventName": "events"
+    }
+}
+  

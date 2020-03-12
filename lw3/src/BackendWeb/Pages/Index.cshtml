@@ -1,0 +1,19 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Lab 1";
+}
+
+<div class="task-form--wrap">
+    @if (Model.ShowTaskId)
+    {
+        <p>
+            <strong>Task ID:</strong> <code>@Model.TaskId</code>
+        </p>
+    } 
+    <form class="task-form" method="POST">
+        <label for="description">Description:</label>
+        <textarea class="task-form__description" name="description"></textarea>
+        <input class="task-form__submit" type="submit" value="Submit">
+    </form>
+</div>
