@@ -8,14 +8,27 @@ package job;
 service Job {
   // Register job
   rpc Register (RegisterRequest) returns (RegisterResponse);
+  rpc GetProcessingResult(RegisterResponse) returns (ProcessingResult);
 }
 
 // The request message containing the user's name.
 message RegisterRequest {
   string description = 1;
+  string data = 2;
 }
 
 // The response message containing the greetings.
 message RegisterResponse {
   string id = 1;
+}
+
+enum ProcessingStatus
+{
+    Processing = 0;
+    Completed = 1;
+}
+
+message ProcessingResult {
+    ProcessingStatus status = 1; 
+    string response = 2;
 }

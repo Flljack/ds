@@ -12,38 +12,33 @@ using Grpc.Net.Client;
 
 namespace aspnetcoreapp.Pages
 {
-    public class IndexModel : PageModel
+    public class TextDetailsModel : PageModel
     {
 
-        public string TaskId { get; set; }
+        public string Rating { get; set; }
 
-        public bool ShowTaskId => !string.IsNullOrEmpty(TaskId);
+        public bool ShowTaskDetails => !string.IsNullOrEmpty(Rating);
 
-        private readonly ILogger<IndexModel> _logger;
+        private readonly ILogger<TextDetailsModel> _logger;
 
-        public IndexModel(ILogger<IndexModel> logger)
+        public TextDetailsModel(ILogger<TextDetailsModel> logger)
         {
             _logger = logger;
         }
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
-            return Page();
-        }
-
-        public async Task<IActionResult> OnPostAsync(string description, string data)
-        {   
-            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+           AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
             var config = new ConfigurationBuilder()  
                         .SetBasePath(new DirectoryInfo(Directory.GetCurrentDirectory()).Parent.FullName + "/config")  
                         .AddJsonFile("config.json", optional: false)  
                         .Build(); 
             using var channel = GrpcChannel.ForAddress($"http://localhost:{config.GetValue<int>("BackendAPI:port")}");
+            string taskId = HttpContext.Request.Query["jobId"].ToString();
             var client = new Job.JobClient(channel);
-            var reply = await client.RegisterAsync(
-                              new RegisterRequest { Description = description, Data = data });
-            TaskId =  reply.Id;
-            return LocalRedirect($"~/TextDetails?jobId={TaskId}");
+            var reply = await client.GetProcessingResultAsync(new RegisterResponse { Id = taskId });
+            Rating = reply.Response;
+            return Page();
         }
     }
 }
